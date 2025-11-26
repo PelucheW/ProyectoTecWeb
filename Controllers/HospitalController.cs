@@ -8,7 +8,7 @@ namespace Security.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
-    public class HospitalController:ControllerBase
+    public class HospitalController : ControllerBase
     {
         private readonly IHospitalService _service;
         public HospitalController(IHospitalService service)

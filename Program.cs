@@ -101,6 +101,10 @@ builder.Services.AddScoped<IHospitalService, HospitalService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+//PROYECTO:
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>(); // NUEVO
+builder.Services.AddScoped<IUserService, UserService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
