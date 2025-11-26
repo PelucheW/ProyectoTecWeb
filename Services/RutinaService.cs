@@ -2,7 +2,7 @@
 using Security.Entities;
 using Security.Repositories;
 
-namespace Proyecto.Services
+namespace Security.Services
 {
     public class RutinaService : IRutinaService
     {

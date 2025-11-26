@@ -1,7 +1,7 @@
 ﻿using Security.DTOs.Rutina;
 using Security.Entities;
 
-namespace Proyecto.Services
+namespace Security.Services
 {
     public interface IRutinaService
     {
