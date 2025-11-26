@@ -1,5 +1,5 @@
-﻿using Proyecto.DTOs.Rutina;
-using Proyecto.Entities;
+﻿using Security.DTOs.Rutina;
+using Security.Entities;
 
 namespace Proyecto.Services
 {

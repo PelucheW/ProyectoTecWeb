@@ -1,6 +1,6 @@
-﻿using Proyecto.DTOs.Rutina;
-using Proyecto.Entities;
-using Proyecto.Repositories;
+﻿using Security.DTOs.Rutina;
+using Security.Entities;
+using Security.Repositories;
 
 namespace Proyecto.Services
 {

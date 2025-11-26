@@ -1,28 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Proyecto.Data;
-using Proyecto.Entities;
+using Security.Data;
+using Security.Entities;
 
-namespace Proyecto.Repositories
+namespace Secuity.Repositories
 {
     public class RutinaRepository : IRutinaRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _ctx;
 
         public RutinaRepository(AppDbContext context)
         {
-            _context = context;
+            _ctx = context;
         }
 
         public async Task<Rutina> CreateAsync(Rutina rutina)
         {
-            _context.Rutinas.Add(rutina);
-            await _context.SaveChangesAsync();
+            _ctx.Rutinas.Add(rutina);
+            await _ctx.SaveChangesAsync();
             return rutina;
         }
 
         public async Task<Rutina> GetByIdAsync(int id)
         {
-            return await _context.Rutinas
+            return await _ctx.Rutinas
                 .Include(r => r.Ejercicios)
                 .Include(r => r.Usuarios)
                 .Include(r => r.Creador)
@@ -31,7 +31,7 @@ namespace Proyecto.Repositories
 
         public async Task<List<Rutina>> GetAllAsync()
         {
-            return await _context.Rutinas
+            return await _ctx.Rutinas
                 .Include(r => r.Ejercicios)
                 .Include(r => r.Creador)
                 .ToListAsync();
@@ -39,14 +39,14 @@ namespace Proyecto.Repositories
 
         public async Task UpdateAsync(Rutina rutina)
         {
-            _context.Rutinas.Update(rutina);
-            await _context.SaveChangesAsync();
+            _ctx.Rutinas.Update(rutina);
+            await _ctx.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(Rutina rutina)
         {
-            _context.Rutinas.Remove(rutina);
-            await _context.SaveChangesAsync();
+            _ctx.Rutinas.Remove(rutina);
+            await _ctx.SaveChangesAsync();
         }
     }
 }

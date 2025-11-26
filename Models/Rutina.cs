@@ -1,6 +1,6 @@
 ﻿using Security.Models;
 
-namespace Proyecto.Entities
+namespace Security.Entities
 {
     public class Rutina
     {

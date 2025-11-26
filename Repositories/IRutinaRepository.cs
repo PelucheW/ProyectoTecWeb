@@ -1,6 +1,6 @@
-﻿using Proyecto.Entities;
+﻿using Security.Entities;
 
-namespace Proyecto.Repositories
+namespace Security.Repositories
 {
     public interface IRutinaRepository
     {
