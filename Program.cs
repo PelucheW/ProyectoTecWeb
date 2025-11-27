@@ -104,6 +104,10 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
 builder.Services.AddScoped<IRutinaService, RutinaService>();
 
+//PROYECTO:
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>(); // NUEVO
+builder.Services.AddScoped<IUserService, UserService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
