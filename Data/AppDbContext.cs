@@ -11,12 +11,15 @@ namespace Security.Data
         }
         public DbSet<User> Users => Set<User>();
         public DbSet<Book> Books => Set<Book>();
+
+        public DbSet<Ejercicio> Ejercicios => Set<Ejercicio>();
         public DbSet<Hospital> Hospitals => Set<Hospital>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<User>();
+            modelBuilder.Entity<Ejercicio>();
             modelBuilder.Entity<Hospital>();
             modelBuilder.Entity<Book>();
         }
