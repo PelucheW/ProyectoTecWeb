@@ -12,6 +12,8 @@ namespace Security.Data
         }
         public DbSet<User> Users => Set<User>();
         public DbSet<Book> Books => Set<Book>();
+
+        public DbSet<Ejercicio> Ejercicios => Set<Ejercicio>();
         public DbSet<UserProfile> Profiles => Set<UserProfile>();
         public DbSet<Hospital> Hospitals => Set<Hospital>();
         public DbSet<Rutina> Rutinas { get; set; }
@@ -21,6 +23,8 @@ namespace Security.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<User>();
+            modelBuilder.Entity<Ejercicio>();
             modelBuilder.Entity<User>().
                 HasOne(u => u.Profile)
                 .WithOne(p => p.User)
