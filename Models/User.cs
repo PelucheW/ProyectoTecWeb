@@ -5,7 +5,7 @@ namespace Security.Models
 {
     public class User
     {
-        public Guid Id { get; set; } // PK
+        public Guid Id { get; set; } 
 
         [Required]
         public string Username { get; set; } = string.Empty;

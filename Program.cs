@@ -2,6 +2,7 @@ using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Npgsql;
 using Secuity.Repositories;
 using Security.Data;
@@ -11,33 +12,69 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Cargar variables .env (si existe)
 Env.Load();
 
-// Configuración del puerto (Railway)
+// Configuración del puerto (Railway / Docker)
 var port = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrEmpty(port))
 {
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
-// Controllers
+// ================= CONTROLLERS + JSON =================
+
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.WriteIndented = true; // opcional, para ver bonito el JSON
+        options.JsonSerializerOptions.WriteIndented = true;
     });
 
+// ================= SWAGGER =================
 
-// Swagger / OpenAPI
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "ProyectoTecWeb API",
+        Version = "v1",
+        Description = "API para gestión de usuarios, perfiles y rutinas con JWT y roles."
+    });
 
-// CORS
+    // Configurar JWT en Swagger
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Introduce el token JWT con el formato: Bearer {token}"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// ================= CORS =================
+
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("AllowAll", p => p
@@ -81,7 +118,7 @@ builder.Services.AddAuthorization(options =>
 
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-// Caso Railway (postgres://)
+// Caso Railway (DATABASE_URL con postgres://...)
 if (!string.IsNullOrEmpty(connectionString) &&
     (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://")))
 {
@@ -104,7 +141,7 @@ if (!string.IsNullOrEmpty(connectionString) &&
     connectionString = builderCs.ConnectionString;
 }
 
-// Local fallback
+// Fallback local (Docker / desarrollo)
 if (string.IsNullOrEmpty(connectionString))
 {
     Console.WriteLine("Using local database configuration.");
@@ -122,12 +159,14 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(connectionString));
 
-// ================= DEPENDENCIAS =================
+// ================= DEPENDENCIAS (DI) =================
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
 builder.Services.AddScoped<IEjercicioRepository, EjercicioRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IEjercicioRepository, EjercicioRepository>();
+builder.Services.AddScoped<IEjercicioService, EjercicioService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRutinaService, RutinaService>();
@@ -137,9 +176,12 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
+// Swagger siempre habilitado (dev y prod)
+app.UseSwagger();
+app.UseSwaggerUI();
+
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseHttpsRedirection();
 }
 

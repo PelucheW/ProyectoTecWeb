@@ -20,7 +20,7 @@ namespace Security.Repositories
             _ctx.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
         public Task<User?> GetByIdAsync(Guid id) =>
-            _ctx.Users.FirstOrDefaultAsync(u => u.Id == id);   // 👈 NUEVO
+            _ctx.Users.FirstOrDefaultAsync(u => u.Id == id); 
 
         public async Task AddAsync(User user)
         {
@@ -34,7 +34,7 @@ namespace Security.Repositories
             await _ctx.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(User user)              // 👈 NUEVO
+        public async Task DeleteAsync(User user)          
         {
             _ctx.Users.Remove(user);
             await _ctx.SaveChangesAsync();

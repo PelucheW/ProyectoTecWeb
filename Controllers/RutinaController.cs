@@ -38,7 +38,6 @@ namespace Security.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRutinaDto dto)
         {
-            // Tomamos el claim "id" del JWT (debe contener el Guid del usuario)
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "id")?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized("No se encontró el id del usuario en el token.");

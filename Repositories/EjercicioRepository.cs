@@ -47,8 +47,6 @@ namespace Security.Repositories
         }
         public async Task<List<Ejercicio>> GetByIdsAsync(List<Guid> ids)
         {
-            // Usamos Where(e => ids.Contains(e.Id)) para filtrar los ejercicios
-            // cuyos IDs están en la lista de Guids proporcionada.
             return await _context.Ejercicios
                                  .Where(e => ids.Contains(e.Id))
                                  .ToListAsync();

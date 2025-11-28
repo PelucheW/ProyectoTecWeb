@@ -17,7 +17,6 @@ namespace Security.Controllers
             _service = service;
         }
 
-        // Obtener el perfil del usuario actual
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
@@ -34,14 +33,12 @@ namespace Security.Controllers
 
             if (profile is null)
             {
-                // 🔹 Siempre 200, aunque no haya perfil aún
                 return Ok(new { hasProfile = false });
             }
 
             return Ok(profile);
         }
 
-        // Actualizar o crear perfil
         [Authorize]
         [HttpPut("me")]
         public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateProfileDto dto)
@@ -59,7 +56,7 @@ namespace Security.Controllers
             if (result is null)
                 return BadRequest("No se pudo actualizar el perfil.");
 
-            return Ok(result); // 200 con JSON del perfil actualizado
+            return Ok(result);
         }
     }
 }

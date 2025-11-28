@@ -5,19 +5,17 @@ namespace Security.Models.DTOS
     public record RegisterDto
     {
         [Required]
-        public required string Username { get; init; } // User.Username
+        public required string Username { get; init; } 
 
-        // Este lo dejo opcional, se puede mandar o no
-        public string? Nombre { get; init; } // User.Nombre
+
+        public string? Nombre { get; init; } 
 
         [Required]
         [EmailAddress]
-        public required string Email { get; init; } // User.Email
-
+        public required string Email { get; init; } 
         [Required]
-        public required string Password { get; init; } // User.PasswordHash
+        public required string Password { get; init; } 
 
-        // Rol en la app: "Cliente" o "Trainer"
         [Required]
         public string Role { get; init; } = "Cliente";
     }

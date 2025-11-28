@@ -11,10 +11,8 @@ namespace Security.Entities
         public string Objetivo { get; set; } = string.Empty;
         public string NivelObjetivo { get; set; } = string.Empty;
 
-        // FK al creador (User) – coincide con User.Id (Guid)
         public Guid? CreadorId { get; set; }
 
-        // Navegación al creador (puede ser null si aún no se asignó)
         public User? Creador { get; set; }
 
         // Usuarios que usan esta rutina (N:M)

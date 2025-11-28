@@ -4,7 +4,6 @@ namespace Security.Models.DTOS
 {
     public class CreateProfileDto
     {
-        // Campos Biométricos y de Gimnasio
         [Required]
         public double Edad { get; init; }
         [Required]
@@ -17,7 +16,6 @@ namespace Security.Models.DTOS
         [Required]
         public string Nivel { get; init; } = string.Empty; // principiante, intermedio, avanzado
 
-        // Campos específicos de Trainer (opcionales)
         public string? Especialidad { get; init; }
         public int? AniosExperiencia { get; init; }
         public string? Certificacion { get; init; }

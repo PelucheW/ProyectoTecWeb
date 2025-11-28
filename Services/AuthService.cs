@@ -30,7 +30,6 @@ namespace Security.Services
             var ok = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
             if (!ok) return (false, null);
 
-            // Generar par access/refresh
             var (accessToken, expiresIn, jti) = GenerateJwtToken(user);
             var refreshToken = GenerateSecureRefreshToken();
 
@@ -106,23 +105,19 @@ namespace Security.Services
 
         private (string token, int expiresInSeconds, string jti) GenerateJwtToken(User user)
         {
-            // Leemos los mismos valores que usa Program.cs
             var jwtKeyBase64 = Environment.GetEnvironmentVariable("JWT_KEY")
                                ?? throw new InvalidOperationException("JWT_KEY env var is not set");
             var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
             var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 
-            // Expiración configurable (por config o .env como Jwt__ExpiresMinutes)
             var expireMinutes = int.Parse(_configuration["Jwt:ExpiresMinutes"] ?? "60");
 
             var jti = Guid.NewGuid().ToString();
 
             var claims = new List<Claim>
             {
-                // Claim que usas en el RutinaController
                 new Claim("id", user.Id.ToString()),
 
-                // Claims estándar
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Username),
@@ -130,7 +125,6 @@ namespace Security.Services
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
             };
 
-            // Clave simétrica: mismo algoritmo que en Program.cs
             var keyBytes = Convert.FromBase64String(jwtKeyBase64);
             var creds = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256);
 

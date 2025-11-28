@@ -15,7 +15,6 @@ namespace Security.Services
             _profileRepo = profileRepo;
         }
 
-        // ========= MÉTODOS DE USUARIO =========
 
         public Task<User?> GetUserByIdAsync(Guid id)
         {
@@ -27,7 +26,6 @@ namespace Security.Services
             var user = await _userRepo.GetByIdAsync(id);
             if (user == null) return false;
 
-            // Borrar también el perfil si existe
             var profile = await _profileRepo.GetByIdAsync(id);
             if (profile != null)
             {
@@ -38,7 +36,6 @@ namespace Security.Services
             return true;
         }
 
-        // ========= MÉTODOS DE PERFIL =========
 
         public async Task<ReadProfileDto?> GetProfileByIdAsync(Guid userId)
         {
@@ -63,14 +60,13 @@ namespace Security.Services
         {
             var profile = await _profileRepo.GetByIdAsync(userId);
 
-            // Si no existe → crear perfil vacío
+
             if (profile == null)
             {
                 profile = new UserProfile { Id = userId };
                 await _profileRepo.AddAsync(profile);
             }
 
-            // Actualizar solo lo que viene en el DTO
             if (dto.Edad.HasValue) profile.Edad = dto.Edad.Value;
             if (dto.Peso.HasValue) profile.Peso = dto.Peso.Value;
             if (dto.Altura.HasValue) profile.Altura = dto.Altura.Value;

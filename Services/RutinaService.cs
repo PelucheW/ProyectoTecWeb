@@ -28,7 +28,7 @@ namespace Security.Services
                 Descripcion = dto.Descripcion,
                 Objetivo = dto.Objetivo,
                 NivelObjetivo = dto.NivelObjetivo,
-                CreadorId = userId,          // Guid -> Guid? ✅
+                CreadorId = userId,  
                 Ejercicios = ejercicios
             };
 
