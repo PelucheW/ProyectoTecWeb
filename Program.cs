@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using Secuity.Repositories;
 using Security.Data;
 using Security.Repositories;
 using Security.Services;
@@ -100,6 +101,12 @@ builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
 builder.Services.AddScoped<IHospitalService, HospitalService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
+builder.Services.AddScoped<IRutinaService, RutinaService>();
+
+//PROYECTO:
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>(); // NUEVO
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
