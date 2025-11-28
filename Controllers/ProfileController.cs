@@ -15,9 +15,7 @@ namespace Security.Controllers
 
         public ProfileController(IUserService userService) => _userService = userService;
 
-        /// <summary>
         /// Extrae el ID del usuario (Guid) del token JWT que lo autenticó.
-        /// </summary>
         /// <returns>El Guid del usuario autenticado.</returns>
         /// <exception cref="UnauthorizedAccessException">Si el ID no se encuentra en el token.</exception>
         private Guid GetUserIdFromToken()
@@ -34,9 +32,7 @@ namespace Security.Controllers
         }
 
         // GET /api/v1/profile
-        /// <summary>
         /// Obtiene el perfil (UserProfile) del usuario actualmente autenticado.
-        /// </summary>
         [HttpGet]
         public async Task<IActionResult> GetMyProfile()
         {
@@ -56,9 +52,7 @@ namespace Security.Controllers
         }
 
         // PUT /api/v1/profile
-        /// <summary>
         /// Actualiza los detalles (UserProfile) del usuario actualmente autenticado.
-        /// </summary>
         [HttpPut]
         public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateProfileDto dto)
         {
@@ -80,10 +74,8 @@ namespace Security.Controllers
         }
 
         // DELETE /api/v1/profile
-        /// <summary>
         /// Elimina la cuenta completa del usuario actualmente autenticado.
         /// (Solo para el mismo usuario, no para Admin)
-        /// </summary>
         [HttpDelete]
         public async Task<IActionResult> DeleteMyProfile()
         {

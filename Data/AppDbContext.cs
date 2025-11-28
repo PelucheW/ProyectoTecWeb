@@ -11,11 +11,9 @@ namespace Security.Data
         {
         }
         public DbSet<User> Users => Set<User>();
-        public DbSet<Book> Books => Set<Book>();
 
         public DbSet<Ejercicio> Ejercicios => Set<Ejercicio>();
         public DbSet<UserProfile> Profiles => Set<UserProfile>();
-        public DbSet<Hospital> Hospitals => Set<Hospital>();
         public DbSet<Rutina> Rutinas { get; set; }
 
 
@@ -28,8 +26,6 @@ namespace Security.Data
                 HasOne(u => u.Profile)
                 .WithOne(p => p.User)
                 .HasForeignKey<UserProfile>(p => p.Id); ;
-            modelBuilder.Entity<Hospital>();
-            modelBuilder.Entity<Book>();
 
             modelBuilder.Entity<Rutina>()
                 .HasMany(r => r.Ejercicios)

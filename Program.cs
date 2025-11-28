@@ -104,7 +104,6 @@ opt.UseNpgsql(connectionString));
 // =================================================================
 
 // Repositorios
-builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
 
@@ -112,7 +111,6 @@ builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
 builder.Services.AddScoped<IEjercicioRepository, EjercicioRepository>();
 
 // Servicios
-builder.Services.AddScoped<IHospitalService, HospitalService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRutinaService, RutinaService>();
 // PROYECTO:
