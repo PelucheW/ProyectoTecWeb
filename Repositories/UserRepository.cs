@@ -1,5 +1,4 @@
-﻿// Security/Repositories/UserRepository.cs (ejemplo EF)
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Security.Data;
 using Security.Models;
 
@@ -8,13 +7,20 @@ namespace Security.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly AppDbContext _ctx;
-        public UserRepository(AppDbContext ctx) { _ctx = ctx; }
+
+        public UserRepository(AppDbContext ctx)
+        {
+            _ctx = ctx;
+        }
 
         public Task<User?> GetByEmailAddress(string email) =>
             _ctx.Users.FirstOrDefaultAsync(u => u.Email == email);
 
         public Task<User?> GetByRefreshToken(string refreshToken) =>
             _ctx.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+        public Task<User?> GetByIdAsync(Guid id) =>
+            _ctx.Users.FirstOrDefaultAsync(u => u.Id == id);   // 👈 NUEVO
 
         public async Task AddAsync(User user)
         {
@@ -25,6 +31,12 @@ namespace Security.Repositories
         public async Task UpdateAsync(User user)
         {
             _ctx.Users.Update(user);
+            await _ctx.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(User user)              // 👈 NUEVO
+        {
+            _ctx.Users.Remove(user);
             await _ctx.SaveChangesAsync();
         }
     }

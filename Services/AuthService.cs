@@ -58,13 +58,16 @@ namespace Security.Services
         public async Task<string> RegisterAsync(RegisterDto dto)
         {
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
             var user = new User
             {
                 Email = dto.Email,
                 PasswordHash = hashedPassword,
                 Username = dto.Username,
-                Role = dto.Role
+                Nombre = dto.Nombre ?? string.Empty,
+                Role = dto.Role   // "Cliente" o "Trainer"
             };
+
             await _users.AddAsync(user);
             return user.Id.ToString();
         }

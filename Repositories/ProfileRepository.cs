@@ -7,16 +7,22 @@ namespace Security.Repositories
     public class ProfileRepository : IProfileRepository
     {
         private readonly AppDbContext _ctx;
-        public ProfileRepository(AppDbContext ctx) => _ctx = ctx;
+
+        public ProfileRepository(AppDbContext ctx)
+        {
+            _ctx = ctx;
+        }
+
+        public Task<UserProfile?> GetByIdAsync(Guid id)
+        {
+            return _ctx.Profiles.FirstOrDefaultAsync(p => p.Id == id);
+        }
 
         public async Task AddAsync(UserProfile profile)
         {
-            await _ctx.Profiles.AddAsync(profile);
+            _ctx.Profiles.Add(profile);
             await _ctx.SaveChangesAsync();
         }
-
-       public Task<UserProfile?> GetByIdAsync(Guid userId) =>
-            _ctx.Profiles.FirstOrDefaultAsync(p => p.Id == userId);
 
         public async Task UpdateAsync(UserProfile profile)
         {
@@ -31,4 +37,3 @@ namespace Security.Repositories
         }
     }
 }
-

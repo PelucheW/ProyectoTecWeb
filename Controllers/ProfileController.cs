@@ -7,89 +7,59 @@ using System.Security.Claims;
 namespace Security.Controllers
 {
     [ApiController]
-    [Route("api/v1/profile")]
-    [Authorize] // Requiere que el usuario esté autenticado con un JWT válido
+    [Route("api/profile")]
     public class ProfileController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserService _service;
 
-        public ProfileController(IUserService userService) => _userService = userService;
-
-        /// Extrae el ID del usuario (Guid) del token JWT que lo autenticó.
-        /// <returns>El Guid del usuario autenticado.</returns>
-        /// <exception cref="UnauthorizedAccessException">Si el ID no se encuentra en el token.</exception>
-        private Guid GetUserIdFromToken()
+        public ProfileController(IUserService service)
         {
-            // ClaimTypes.NameIdentifier (o Sub) contiene el ID del usuario.
-            var idClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (Guid.TryParse(idClaim, out var userId))
-            {
-                return userId;
-            }
-            // Esto no debería pasar si el token es válido, pero es una buena medida de seguridad.
-            throw new UnauthorizedAccessException("ID de usuario no encontrado o inválido en el token.");
+            _service = service;
         }
 
-        // GET /api/v1/profile
-        /// Obtiene el perfil (UserProfile) del usuario actualmente autenticado.
-        [HttpGet]
+        // Obtener el perfil del usuario actual
+        [Authorize]
+        [HttpGet("me")]
         public async Task<IActionResult> GetMyProfile()
         {
-            try
-            {
-                var userId = GetUserIdFromToken();
-                var profileDto = await _userService.GetProfileByIdAsync(userId);
+            var userIdClaim = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "sub");
 
-                if (profileDto == null) return NotFound("Perfil de usuario no encontrado.");
+            if (userIdClaim is null)
+                return Unauthorized();
 
-                return Ok(profileDto);
-            }
-            catch (UnauthorizedAccessException ex)
+            var userId = Guid.Parse(userIdClaim.Value);
+
+            var profile = await _service.GetProfileByIdAsync(userId);
+
+            if (profile is null)
             {
-                return Unauthorized(new { error = ex.Message });
+                // Si no hay perfil aún, respondemos 200 con un indicador
+                return Ok(new { hasProfile = false });
             }
+
+            return Ok(profile);
         }
 
-        // PUT /api/v1/profile
-        /// Actualiza los detalles (UserProfile) del usuario actualmente autenticado.
-        [HttpPut]
+        // Actualizar o crear perfil
+        [Authorize]
+        [HttpPut("me")]
         public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateProfileDto dto)
         {
-            if (!ModelState.IsValid) return ValidationProblem(ModelState);
+            var userIdClaim = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier || c.Type == "sub");
 
-            try
-            {
-                var userId = GetUserIdFromToken();
-                var updatedProfile = await _userService.UpdateProfileAsync(userId, dto);
+            if (userIdClaim is null)
+                return Unauthorized();
 
-                if (updatedProfile == null) return NotFound("Perfil no encontrado o no autorizado.");
+            var userId = Guid.Parse(userIdClaim.Value);
 
-                return Ok(updatedProfile);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { error = ex.Message });
-            }
-        }
+            var result = await _service.UpdateProfileAsync(userId, dto);
 
-        // DELETE /api/v1/profile
-        /// Elimina la cuenta completa del usuario actualmente autenticado.
-        /// (Solo para el mismo usuario, no para Admin)
-        [HttpDelete]
-        public async Task<IActionResult> DeleteMyProfile()
-        {
-            try
-            {
-                var userId = GetUserIdFromToken();
-                var success = await _userService.DeleteUserAsync(userId);
+            if (result is null)
+                return BadRequest("No se pudo actualizar el perfil.");
 
-                return success ? NoContent() : NotFound("Usuario o perfil no encontrado.");
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(new { error = ex.Message });
-            }
+            return Ok(result); // 200 con JSON del perfil actualizado
         }
     }
 }

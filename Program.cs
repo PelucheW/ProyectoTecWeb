@@ -9,6 +9,8 @@ using Security.Repositories;
 using Security.Services;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +25,14 @@ if (!string.IsNullOrEmpty(port))
 }
 
 // Controllers
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true; // opcional, para ver bonito el JSON
+    });
+
 
 // Swagger / OpenAPI
 builder.Services.AddOpenApi();
