@@ -34,7 +34,7 @@ namespace Security.Controllers
 
             if (profile is null)
             {
-                // Si no hay perfil aún, respondemos 200 con un indicador
+                // 🔹 Siempre 200, aunque no haya perfil aún
                 return Ok(new { hasProfile = false });
             }
 
