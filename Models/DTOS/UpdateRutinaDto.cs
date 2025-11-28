@@ -7,6 +7,6 @@
         public string Objetivo { get; set; }
         public string NivelObjetivo { get; set; }
 
-        public List<int> EjerciciosIds { get; set; } = new();
+        public List<Guid> EjerciciosIds { get; set; } = new();
     }
 }

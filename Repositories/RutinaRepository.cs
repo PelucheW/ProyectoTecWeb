@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Security.Data;
 using Security.Entities;
+using Security.Repositories;
 
 namespace Secuity.Repositories
 {

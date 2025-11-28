@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Security.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Security.Models
 {
@@ -26,5 +27,9 @@ namespace Security.Models
 
         // Relación 1:1 con UserProfile
         public UserProfile? Profile { get; set; }
+        // Relación 1:N con Rutina
+        // Un usuario puede crear muchas Rutinas. 
+        // El nombre debe coincidir con el que causa el error: "RutinasCreadas"
+        public ICollection<Rutina> RutinasCreadas { get; set; } = new List<Rutina>();
     }
 }

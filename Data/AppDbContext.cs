@@ -17,7 +17,6 @@ namespace Security.Data
         public DbSet<UserProfile> Profiles => Set<UserProfile>();
         public DbSet<Hospital> Hospitals => Set<Hospital>();
         public DbSet<Rutina> Rutinas { get; set; }
-        public DbSet<Ejercicio> Ejercicios { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

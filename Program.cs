@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
-using Secuity.Repositories;
+using Secuity.Repositories; // Posible typo en el using (Secuity en lugar de Security), lo mantengo por si es correcto.
 using Security.Data;
 using Security.Repositories;
 using Security.Services;
@@ -23,6 +23,7 @@ if (!string.IsNullOrEmpty(port))
 }
 
 builder.Services.AddControllers();
+// Asumo que AddOpenApi() es un método de extensión para Swagger/OpenAPI
 builder.Services.AddOpenApi();
 builder.Services.AddCors(opt =>
 {
@@ -97,16 +98,31 @@ if (string.IsNullOrEmpty(connectionString))
 }
 builder.Services.AddDbContext<AppDbContext>(opt =>
 opt.UseNpgsql(connectionString));
+
+// =================================================================
+// ??? SECCIÓN DE INYECCIÓN DE DEPENDENCIAS CORREGIDA
+// =================================================================
+
+// Repositorios
 builder.Services.AddScoped<IHospitalRepository, HospitalRepository>();
-builder.Services.AddScoped<IHospitalService, HospitalService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
-builder.Services.AddScoped<IRutinaService, RutinaService>();
 
-//PROYECTO:
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>(); // NUEVO
+// LÍNEA CLAVE: Esta línea faltaba y causaba el error de AggregateException.
+builder.Services.AddScoped<IEjercicioRepository, EjercicioRepository>();
+
+// Servicios
+builder.Services.AddScoped<IHospitalService, HospitalService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRutinaService, RutinaService>();
+// PROYECTO:
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+// =================================================================
+// ?? FIN SECCIÓN DE INYECCIÓN DE DEPENDENCIAS
+// =================================================================
+
 
 var app = builder.Build();
 

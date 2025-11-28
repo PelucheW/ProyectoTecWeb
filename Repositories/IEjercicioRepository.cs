@@ -9,6 +9,8 @@ namespace Security.Repositories
         Task<Ejercicio> CreateAsync(Ejercicio ejercicio);
         Task<bool> UpdateAsync(Ejercicio ejercicio);
         Task<bool> DeleteAsync(int id);
+
+        Task<List<Ejercicio>> GetByIdsAsync(List<Guid> ids);
     }
 }
 
