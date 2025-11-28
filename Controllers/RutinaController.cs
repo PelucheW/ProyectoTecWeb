@@ -3,7 +3,8 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Security.DTOs.Rutina;
+using Security.Models;
+using Security.Models.DTOS;
 using Security.Services;
 
 namespace Security.Controllers

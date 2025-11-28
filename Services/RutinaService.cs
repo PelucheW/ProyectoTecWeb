@@ -1,5 +1,5 @@
 ﻿using System;
-using Security.DTOs.Rutina;
+using Security.Models.DTOS;
 using Security.Entities;
 using Security.Repositories;
 
