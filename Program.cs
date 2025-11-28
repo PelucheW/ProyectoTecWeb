@@ -22,7 +22,6 @@ if (!string.IsNullOrEmpty(port))
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
-
 builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
@@ -77,10 +76,20 @@ builder.Services.AddCors(opt =>
         .AllowAnyMethod());
 });
 
+// --- CRITICAL CORRECTION FOR JWT KEY (LINE 83 FIX) ---
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-var keyBytes = Convert.FromBase64String(jwtKey!);
+
+// VALIDACIÓN CLAVE: Si la clave JWT es null, lanza una excepción clara.
+if (string.IsNullOrEmpty(jwtKey))
+{
+    // Si la clave no está en el ambiente (Railway), fallará aquí con un mensaje claro.
+    // Esto es NECESARIO si tu código usa Environment.GetEnvironmentVariable("JWT_KEY").
+    throw new InvalidOperationException("La variable de entorno JWT_KEY no se encontró o está vacía.");
+}
+
+var keyBytes = Convert.FromBase64String(jwtKey); // Aquí falla si jwtKey es null
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -105,6 +114,7 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
 });
 
+// --- CONFIGURACIÓN DE BASE DE DATOS ---
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
 
 if (!string.IsNullOrEmpty(connectionString) &&
@@ -163,10 +173,8 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseHttpsRedirection();
-}
+// CORRECCIÓN 3: Mover la redirección HTTPS para que funcione en Railway (producción)
+app.UseHttpsRedirection();
 
 app.UseCors("AllowAll");
 
