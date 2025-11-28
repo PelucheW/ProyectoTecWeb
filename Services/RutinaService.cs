@@ -1,4 +1,5 @@
-﻿using Security.DTOs.Rutina;
+﻿using System;
+using Security.DTOs.Rutina;
 using Security.Entities;
 using Security.Repositories;
 
@@ -17,7 +18,7 @@ namespace Security.Services
             _ejercicioRepos = ejercicioRepos;
         }
 
-        public async Task<Rutina> CreateAsync(CreateRutinaDto dto, int userId)
+        public async Task<Rutina> CreateAsync(CreateRutinaDto dto, Guid userId)
         {
             var ejercicios = await _ejercicioRepos.GetByIdsAsync(dto.EjerciciosIds);
 
@@ -27,14 +28,14 @@ namespace Security.Services
                 Descripcion = dto.Descripcion,
                 Objetivo = dto.Objetivo,
                 NivelObjetivo = dto.NivelObjetivo,
-                CreadorId = userId,
+                CreadorId = userId,          // Guid -> Guid? ✅
                 Ejercicios = ejercicios
             };
 
             return await _repos.CreateAsync(rutina);
         }
 
-        public async Task<Rutina> UpdateAsync(int id, UpdateRutinaDto dto)
+        public async Task<Rutina?> UpdateAsync(int id, UpdateRutinaDto dto)
         {
             var rutina = await _repos.GetByIdAsync(id);
             if (rutina == null) return null;
@@ -52,7 +53,7 @@ namespace Security.Services
 
         public async Task<List<Rutina>> GetAllAsync() => await _repos.GetAllAsync();
 
-        public async Task<Rutina> GetByIdAsync(int id) => await _repos.GetByIdAsync(id);
+        public async Task<Rutina?> GetByIdAsync(int id) => await _repos.GetByIdAsync(id);
 
         public async Task<bool> DeleteAsync(int id)
         {

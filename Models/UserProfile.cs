@@ -7,7 +7,7 @@ namespace Security.Models
     {
         // PK / FK (PK = FK a User)
         [Key]
-        public Guid Id { get; set; } // Mismo Id que User
+        public Guid Id { get; set; }
 
         // Campos Biométricos
         public double Edad { get; set; }
@@ -15,10 +15,10 @@ namespace Security.Models
         public double Altura { get; set; }
 
         // Campos de Gimnasio
-        public string Objetivo { get; set; } = string.Empty; // "perder peso", "ganar masa", etc.
-        public string Nivel { get; set; } = "Principiante"; // "Principiante", "Intermedio", "Avanzado"
+        public string Objetivo { get; set; } = string.Empty;
+        public string Nivel { get; set; } = "Principiante";
 
-        // Campos específicos de Trainer (pueden ser nulos si es Cliente)
+        // Campos específicos de Trainer (opcionales)
         public string? Especialidad { get; set; }
         public int? AniosExperiencia { get; set; }
         public string? Certificacion { get; set; }

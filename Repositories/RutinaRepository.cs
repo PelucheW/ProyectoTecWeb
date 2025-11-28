@@ -21,7 +21,7 @@ namespace Secuity.Repositories
             return rutina;
         }
 
-        public async Task<Rutina> GetByIdAsync(int id)
+        public async Task<Rutina?> GetByIdAsync(int id)
         {
             return await _ctx.Rutinas
                 .Include(r => r.Ejercicios)
