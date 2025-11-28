@@ -14,17 +14,14 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Cargar variables .env (si existe)
 Env.Load();
 
-// Configuración del puerto (Railway / Docker)
 var port = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrEmpty(port))
 {
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
-// ================= CONTROLLERS + JSON =================
 
 builder.Services
     .AddControllers()
@@ -34,7 +31,6 @@ builder.Services
         options.JsonSerializerOptions.WriteIndented = true;
     });
 
-// ================= SWAGGER =================
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -43,10 +39,9 @@ builder.Services.AddSwaggerGen(options =>
     {
         Title = "ProyectoTecWeb API",
         Version = "v1",
-        Description = "API para gestión de usuarios, perfiles y rutinas con JWT y roles."
+        Description = "API para gestión de usuarios, perfiles, rutinas y ejercicios con JWT y roles."
     });
 
-    // Configurar JWT en Swagger
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -73,7 +68,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// ================= CORS =================
 
 builder.Services.AddCors(opt =>
 {
@@ -83,12 +77,9 @@ builder.Services.AddCors(opt =>
         .AllowAnyMethod());
 });
 
-// ================= JWT =================
-
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
-
 var keyBytes = Convert.FromBase64String(jwtKey!);
 
 builder.Services
@@ -114,11 +105,8 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
 });
 
-// ================= CONEXIÓN POSTGRES =================
-
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
 
-// Caso Railway (DATABASE_URL con postgres://...)
 if (!string.IsNullOrEmpty(connectionString) &&
     (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://")))
 {
@@ -141,7 +129,6 @@ if (!string.IsNullOrEmpty(connectionString) &&
     connectionString = builderCs.ConnectionString;
 }
 
-// Fallback local (Docker / desarrollo)
 if (string.IsNullOrEmpty(connectionString))
 {
     Console.WriteLine("Using local database configuration.");
@@ -159,24 +146,20 @@ if (string.IsNullOrEmpty(connectionString))
 builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseNpgsql(connectionString));
 
-// ================= DEPENDENCIAS (DI) =================
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
 builder.Services.AddScoped<IEjercicioRepository, EjercicioRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
-builder.Services.AddScoped<IEjercicioRepository, EjercicioRepository>();
-builder.Services.AddScoped<IEjercicioService, EjercicioService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRutinaService, RutinaService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IEjercicioService, EjercicioService>();
 
-// ================= APP =================
 
 var app = builder.Build();
 
-// Swagger siempre habilitado (dev y prod)
 app.UseSwagger();
 app.UseSwaggerUI();
 

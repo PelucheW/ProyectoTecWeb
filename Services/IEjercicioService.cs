@@ -5,11 +5,10 @@ namespace Security.Services
 {
     public interface IEjercicioService
     {
-        Task<IEnumerable<Ejercicio>> GetAllAsync();
-        Task<Ejercicio?> GetByIdAsync(int id);
-        Task<Ejercicio?> CreateAsync(CreateEjercicioDto dto);
-        Task<bool> UpdateAsync(int id, UpdateEjercicioDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task<List<Ejercicio>> GetAllAsync();
+        Task<Ejercicio?> GetByIdAsync(Guid id);
+        Task<Ejercicio> CreateAsync(CreateEjercicioDto dto);
+        Task<Ejercicio?> UpdateAsync(Guid id, UpdateEjercicioDto dto);
+        Task<bool> DeleteAsync(Guid id);
     }
 }
-

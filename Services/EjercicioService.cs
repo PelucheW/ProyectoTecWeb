@@ -13,13 +13,15 @@ namespace Security.Services
             _repo = repo;
         }
 
-        public Task<IEnumerable<Ejercicio>> GetAllAsync() => _repo.GetAllAsync();
+        public Task<List<Ejercicio>> GetAllAsync()
+            => _repo.GetAllAsync();
 
-        public Task<Ejercicio?> GetByIdAsync(int id) => _repo.GetByIdAsync(id);
+        public Task<Ejercicio?> GetByIdAsync(Guid id)
+            => _repo.GetByIdAsync(id);
 
-        public async Task<Ejercicio?> CreateAsync(CreateEjercicioDto dto)
+        public async Task<Ejercicio> CreateAsync(CreateEjercicioDto dto)
         {
-            var entity = new Ejercicio
+            var ejercicio = new Ejercicio
             {
                 Nombre = dto.Nombre,
                 Descripcion = dto.Descripcion,
@@ -27,25 +29,30 @@ namespace Security.Services
                 Equipamiento = dto.Equipamiento
             };
 
-            return await _repo.CreateAsync(entity);
-
-
+            return await _repo.CreateAsync(ejercicio);
         }
 
-        public async Task<bool> UpdateAsync(int id, UpdateEjercicioDto dto)
+        public async Task<Ejercicio?> UpdateAsync(Guid id, UpdateEjercicioDto dto)
         {
-            var existing = await _repo.GetByIdAsync(id);
-            if (existing == null) return false;
+            var ejercicio = await _repo.GetByIdAsync(id);
+            if (ejercicio == null) return null;
 
-            existing.Nombre = dto.Nombre;
-            existing.Descripcion = dto.Descripcion;
-            existing.GrupoMuscular = dto.GrupoMuscular;
-            existing.Equipamiento = dto.Equipamiento;
+            ejercicio.Nombre = dto.Nombre;
+            ejercicio.Descripcion = dto.Descripcion;
+            ejercicio.GrupoMuscular = dto.GrupoMuscular;
+            ejercicio.Equipamiento = dto.Equipamiento;
 
-            return await _repo.UpdateAsync(existing);
+            await _repo.UpdateAsync(ejercicio);
+            return ejercicio;
         }
 
-        public Task<bool> DeleteAsync(int id) => _repo.DeleteAsync(id);
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            var ejercicio = await _repo.GetByIdAsync(id);
+            if (ejercicio == null) return false;
+
+            await _repo.DeleteAsync(ejercicio);
+            return true;
+        }
     }
 }
-

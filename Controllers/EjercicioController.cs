@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Security.Models;
 using Security.Models.DTOS;
 using Security.Services;
 
@@ -20,36 +19,46 @@ namespace Security.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _service.GetAllAsync());
+            var ejercicios = await _service.GetAllAsync();
+            return Ok(ejercicios);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id)
         {
-            var item = await _service.GetByIdAsync(id);
-            return item is null ? NotFound() : Ok(item);
+            var ejercicio = await _service.GetByIdAsync(id);
+            if (ejercicio == null) return NotFound();
+            return Ok(ejercicio);
         }
 
+        [Authorize(Roles = "Trainer")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateEjercicioDto dto)
         {
-            var id = await _service.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id }, null);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var ejercicio = await _service.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = ejercicio.Id }, ejercicio);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateEjercicioDto dto)
+        [Authorize(Roles = "Trainer")]
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEjercicioDto dto)
         {
-            var ok = await _service.UpdateAsync(id, dto);
-            return ok ? NoContent() : NotFound();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var ejercicio = await _service.UpdateAsync(id, dto);
+            if (ejercicio == null) return NotFound();
+            return Ok(ejercicio);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [Authorize(Roles = "Trainer")]
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(Guid id)
         {
             var ok = await _service.DeleteAsync(id);
-            return ok ? NoContent() : NotFound();
+            if (!ok) return NotFound();
+            return NoContent();
         }
     }
 }
-

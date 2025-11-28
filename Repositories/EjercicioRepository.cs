@@ -1,56 +1,52 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Security.Data;
 using Security.Models;
-using System.Linq;
 
 namespace Security.Repositories
 {
     public class EjercicioRepository : IEjercicioRepository
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _ctx;
 
-        public EjercicioRepository(AppDbContext context)
+        public EjercicioRepository(AppDbContext ctx)
         {
-            _context = context;
+            _ctx = ctx;
         }
 
-        public async Task<IEnumerable<Ejercicio>> GetAllAsync()
+        public Task<List<Ejercicio>> GetAllAsync()
         {
-            return await _context.Ejercicios.ToListAsync();
+            return _ctx.Ejercicios.ToListAsync();
         }
 
-        public async Task<Ejercicio?> GetByIdAsync(int id)
+        public Task<Ejercicio?> GetByIdAsync(Guid id)
         {
-            return await _context.Ejercicios.FindAsync(id);
+            return _ctx.Ejercicios.FirstOrDefaultAsync(e => e.Id == id);
         }
 
         public async Task<Ejercicio> CreateAsync(Ejercicio ejercicio)
         {
-            _context.Ejercicios.Add(ejercicio);
-            await _context.SaveChangesAsync();
+            _ctx.Ejercicios.Add(ejercicio);
+            await _ctx.SaveChangesAsync();
             return ejercicio;
         }
 
-        public async Task<bool> UpdateAsync(Ejercicio ejercicio)
+        public async Task UpdateAsync(Ejercicio ejercicio)
         {
-            _context.Ejercicios.Update(ejercicio);
-            return await _context.SaveChangesAsync() > 0;
+            _ctx.Ejercicios.Update(ejercicio);
+            await _ctx.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(Ejercicio ejercicio)
         {
-            var entity = await _context.Ejercicios.FindAsync(id);
-            if (entity == null) return false;
+            _ctx.Ejercicios.Remove(ejercicio);
+            await _ctx.SaveChangesAsync();
+        }
 
-            _context.Ejercicios.Remove(entity);
-            return await _context.SaveChangesAsync() > 0;
-        }
-        public async Task<List<Ejercicio>> GetByIdsAsync(List<Guid> ids)
+        public Task<List<Ejercicio>> GetByIdsAsync(IEnumerable<Guid> ids)
         {
-            return await _context.Ejercicios
-                                 .Where(e => ids.Contains(e.Id))
-                                 .ToListAsync();
+            return _ctx.Ejercicios
+                .Where(e => ids.Contains(e.Id))
+                .ToListAsync();
         }
     }
-    
-    }
+}
