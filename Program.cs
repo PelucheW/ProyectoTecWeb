@@ -3,28 +3,32 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
-using Secuity.Repositories; // Posible typo en el using (Secuity en lugar de Security), lo mantengo por si es correcto.
+using Secuity.Repositories;
 using Security.Data;
 using Security.Repositories;
 using Security.Services;
 using System.Security.Claims;
 using System.Text;
 
-//dotnet add package DotNetEnv
-
-
 var builder = WebApplication.CreateBuilder(args);
+
+// Cargar variables .env (si existe)
 Env.Load();
 
+// Configuración del puerto (Railway)
 var port = Environment.GetEnvironmentVariable("PORT");
 if (!string.IsNullOrEmpty(port))
 {
     builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 }
 
+// Controllers
 builder.Services.AddControllers();
-// Asumo que AddOpenApi() es un método de extensión para Swagger/OpenAPI
+
+// Swagger / OpenAPI
 builder.Services.AddOpenApi();
+
+// CORS
 builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("AllowAll", p => p
@@ -33,9 +37,12 @@ builder.Services.AddCors(opt =>
         .AllowAnyMethod());
 });
 
+// ================= JWT =================
+
 var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
 var jwtIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
 var jwtAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
 var keyBytes = Convert.FromBase64String(jwtKey!);
 
 builder.Services
@@ -55,12 +62,17 @@ builder.Services
             ClockSkew = TimeSpan.Zero
         };
     });
+
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
 });
+
+// ================= CONEXIÓN POSTGRES =================
+
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
 
+// Caso Railway (postgres://)
 if (!string.IsNullOrEmpty(connectionString) &&
     (connectionString.StartsWith("postgres://") || connectionString.StartsWith("postgresql://")))
 {
@@ -83,54 +95,50 @@ if (!string.IsNullOrEmpty(connectionString) &&
     connectionString = builderCs.ConnectionString;
 }
 
+// Local fallback
 if (string.IsNullOrEmpty(connectionString))
 {
     Console.WriteLine("Using local database configuration.");
-    // fallback local si quieres
+
     var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
     var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
     var dbPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
     var dbHost = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? "localhost";
     var dbPort = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? "5432";
 
-    connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass}";
+    connectionString =
+        $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPass}";
 }
+
 builder.Services.AddDbContext<AppDbContext>(opt =>
-opt.UseNpgsql(connectionString));
+    opt.UseNpgsql(connectionString));
 
-// =================================================================
-// ??? SECCIÓN DE INYECCIÓN DE DEPENDENCIAS CORREGIDA
-// =================================================================
+// ================= DEPENDENCIAS =================
 
-// Repositorios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRutinaRepository, RutinaRepository>();
-
-// LÍNEA CLAVE: Esta línea faltaba y causaba el error de AggregateException.
 builder.Services.AddScoped<IEjercicioRepository, EjercicioRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 
-// Servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRutinaService, RutinaService>();
-// PROYECTO:
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 
-// =================================================================
-// ?? FIN SECCIÓN DE INYECCIÓN DE DEPENDENCIAS
-// =================================================================
-
+// ================= APP =================
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseHttpsRedirection();
 }
+
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
