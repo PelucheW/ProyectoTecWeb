@@ -1,4 +1,4 @@
-﻿namespace Security.DTOs.Rutina
+﻿namespace Security.Models.DTOS
 {
     public class UpdateRutinaDto
     {
