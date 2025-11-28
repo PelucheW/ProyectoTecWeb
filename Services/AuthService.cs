@@ -4,7 +4,6 @@ using Security.Models;
 using Security.Models.DTOS;
 using Security.Models.DTOS.Security.Models.DTOS;
 using Security.Repositories;
-using System.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -85,7 +84,7 @@ namespace Security.Services
 
             user.RefreshToken = newRefresh;
             user.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(refreshDays);
-            user.RefreshTokenRevokedAt = null; 
+            user.RefreshTokenRevokedAt = null;
             user.CurrentJwtId = jti;
             await _users.UpdateAsync(user);
 
@@ -104,15 +103,23 @@ namespace Security.Services
 
         private (string token, int expiresInSeconds, string jti) GenerateJwtToken(User user)
         {
-            var jwtSection = _configuration.GetSection("Jwt");
-            var key = jwtSection["Key"]!;
-            var issuer = jwtSection["Issuer"];
-            var audience = jwtSection["Audience"];
-            var expireMinutes = int.Parse(jwtSection["ExpiresMinutes"] ?? "60");
+            // Leemos los mismos valores que usa Program.cs
+            var jwtKeyBase64 = Environment.GetEnvironmentVariable("JWT_KEY")
+                               ?? throw new InvalidOperationException("JWT_KEY env var is not set");
+            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
+            var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+            // Expiración configurable (por config o .env como Jwt__ExpiresMinutes)
+            var expireMinutes = int.Parse(_configuration["Jwt:ExpiresMinutes"] ?? "60");
 
             var jti = Guid.NewGuid().ToString();
 
-            var claims = new List<Claim> {
+            var claims = new List<Claim>
+            {
+                // Claim que usas en el RutinaController
+                new Claim("id", user.Id.ToString()),
+
+                // Claims estándar
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(ClaimTypes.Name, user.Username),
@@ -120,7 +127,8 @@ namespace Security.Services
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
             };
 
-            var keyBytes = Encoding.UTF8.GetBytes(key);
+            // Clave simétrica: mismo algoritmo que en Program.cs
+            var keyBytes = Convert.FromBase64String(jwtKeyBase64);
             var creds = new SigningCredentials(new SymmetricSecurityKey(keyBytes), SecurityAlgorithms.HmacSha256);
 
             var expires = DateTime.UtcNow.AddMinutes(expireMinutes);
