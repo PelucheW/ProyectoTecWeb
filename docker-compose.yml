@@ -1,36 +1,46 @@
+﻿version: "3.9"
+
 services:
-  api:
-    build: .
-    container_name: security_api
-    ports:
-      - "8080:8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__Default=Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
-      - Jwt__Key=${JWT_KEY}
-      - Jwt__Issuer=${JWT_ISSUER}
-      - Jwt__Audience=${JWT_AUDIENCE}
-      - Jwt__ExpiresMinutes=60
-      - Jwt__RefreshDays=14
-    depends_on:
-      db:
-        condition: service_healthy
   db:
-    image: postgres:16
-    container_name: security_pg
-    restart: unless-stopped
+    image: postgres:16-alpine
+    container_name: tecweb-postgres
+    restart: always
     environment:
-      POSTGRES_DB: securitydb
-      POSTGRES_USER: securityuser
-      POSTGRES_PASSWORD: supersecret
+      POSTGRES_DB: railway
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: hrFJnwIRdUmNFfGmHRxCSHWJHHxlLIRO
     ports:
       - "5432:5432"
     volumes:
-      - security_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U securityuser -d securitydb"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: proyecto-api
+    depends_on:
+      - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+
+      # 👇 Coincide con lo que tu Program.cs usa cuando NO hay DATABASE_URL
+      POSTGRES_DB: railway
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: hrFJnwIRdUmNFfGmHRxCSHWJHHxlLIRO
+      POSTGRES_HOST: postgres.railway.internal
+      POSTGRES_PORT: 5432
+
+      # JWT: usa las mismas claves que en Railway o inventa unas válidas
+      JWT_KEY: 7rHnYyq8iwZ2g7r+OeCZo7L3yS4Ud6ZcM9xT1HnGzOqv3oL/0KIZ6ZSYz6F5vQnFv3uKMe1d2IQoFmg8QvFhFQ==
+      JWT_ISSUER: MiApi
+      JWT_AUDIENCE: MiCliente
+    ports:
+      - "5037:8080"  # host:contenedor → usarás http://localhost:5037
+    # Opcional: si quieres ver logs en tiempo real con mejor formato:
+    # logging:
+    #   driver: "json-file"
+    #   options:
+    #     max-size: "10m"
+    #     max-file: "3"
+
 volumes:
-  security_data:
+  postgres_data:

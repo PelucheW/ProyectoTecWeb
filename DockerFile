@@ -1,16 +1,25 @@
-# Etapa base para ejecutar la app
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-WORKDIR /app
-EXPOSE 8080
-
-# Etapa de build: compila la app
+﻿# Etapa 1: build/publish de la app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY . .
-RUN dotnet publish -c Release -o /app/publish
 
-# Etapa final: ejecuta la app compilada
-FROM base AS final
+# Copiamos el csproj y restauramos dependencias
+COPY *.csproj ./
+RUN dotnet restore
+
+# Copiamos el resto del código y publicamos
+COPY . ./
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+
+# Etapa 2: imagen final ligera para ejecutar
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
+
+# Copiamos lo publicado
 COPY --from=build /app/publish .
+
+# La API escuchará en el puerto 8080 dentro del contenedor
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
+EXPOSE 8080
+
+# IMPORTANTE: el DLL debe coincidir con el nombre de tu proyecto (Security)
 ENTRYPOINT ["dotnet", "Security.dll"]
