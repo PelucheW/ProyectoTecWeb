@@ -7,7 +7,6 @@ namespace Security.Models.DTOS
         [Required]
         public required string Username { get; init; } 
 
-
         public string? Nombre { get; init; } 
 
         [Required]
